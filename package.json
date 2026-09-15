@@ -1,6 +1,6 @@
 {
-  "name": "ericksp",
-  "version": "1.0.0",
+  "name": "ericksp-trading-dashboard",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

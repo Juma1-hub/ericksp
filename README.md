@@ -1,20 +1,22 @@
-# ERICKSP Trading Dashboard
+# ERICKSP Updated Trading Dashboard
 
-This is a **frontend demo/starter** for the ERICKSP project.
+This package is an upgraded frontend demo inspired by modern binary-options/trading dashboard patterns. It is intentionally branded as ERICKSP and does not copy another company's logo, proprietary text, or exact page assets.
 
-## Run locally
+## Included
+- Dark navy trading terminal layout
+- Sidebar navigation
+- Demo account/balance card
+- Market ticker
+- Asset selector
+- Responsive chart area
+- Higher/Lower demo controls
+- Investment amount controls
+- Popular markets table
+- Account panel
+- Responsive desktop/tablet/mobile styling
 
-1. Install Node.js 18+.
-2. Open this folder in a terminal.
-3. Run:
-   ```bash
-   npm install
-   npm run dev
-   ```
-4. Open `http://localhost:3000`.
+## Run
+npm install
+npm run dev
 
-## Important
-
-The included trading buttons are simulated only. No real-money trading, deposits, withdrawals, payment processing, user authentication, or financial returns are implemented.
-
-Before connecting real payments or financial services, add appropriate legal/compliance controls, secure authentication, server-side validation, audit logging, fraud controls, and a properly authorized payment provider.
+This is a frontend demo only. It does not implement real-money trading, deposits, withdrawals, payment processing, KYC, authentication, or guaranteed financial returns.

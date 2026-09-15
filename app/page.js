@@ -1,109 +1,142 @@
 'use client';
 
-import { useState } from 'react';
+import { useState } from "react";
 
-const markets = [
-  { name: 'EUR/USD', price: '1.17342', change: '+0.24%' },
-  { name: 'GBP/USD', price: '1.35781', change: '+0.18%' },
-  { name: 'USD/JPY', price: '147.62', change: '-0.12%' },
-  { name: 'BTC/USD', price: '116,420.00', change: '+1.42%' }
+const assets = [
+  ["EUR/USD", "1.17342", "+0.24%", "92%"],
+  ["GBP/USD", "1.35108", "+0.18%", "89%"],
+  ["USD/JPY", "146.821", "-0.11%", "86%"],
+  ["BTC/USD", "114,820.40", "+1.42%", "94%"]
 ];
 
-export default function Home() {
-  const [amount, setAmount] = useState(50);
-  const [direction, setDirection] = useState(null);
-  const [notice, setNotice] = useState('');
+function Chart() {
+  const bars = [32, 48, 42, 65, 54, 78, 71, 92, 83, 108, 97, 122, 113, 137, 128, 151, 143, 165, 154, 177];
+  return (
+    <div className="chart">
+      <div className="chart-grid">
+        {[1,2,3,4,5].map(i => <span key={i} style={{top: `${i*20}%`}} />)}
+      </div>
+      <div className="bars">
+        {bars.map((h,i) => (
+          <div className={`bar ${i % 5 === 0 || i % 7 === 0 ? "down" : ""}`} key={i}>
+            <i style={{height: `${h+22}px`}} />
+            <b style={{height: `${h}px`}} />
+          </div>
+        ))}
+      </div>
+      <div className="chart-labels"><span>09:00</span><span>12:00</span><span>15:00</span><span>18:00</span></div>
+    </div>
+  );
+}
 
-  function demoTrade(side) {
-    setDirection(side);
-    setNotice(`Demo ${side.toUpperCase()} order selected for KSh ${amount}. No real funds are moved.`);
-  }
+export default function Home() {
+  const [active, setActive] = useState("Trade");
+  const [stake, setStake] = useState(100);
+  const [asset, setAsset] = useState("EUR/USD");
 
   return (
-    <main>
-      <header className="topbar">
-        <div className="brand"><span>ERICK</span>SP</div>
+    <main className="shell">
+      <aside className="sidebar">
+        <div className="brand">ERICK<span>SP</span></div>
+        <div className="demo-pill">DEMO ACCOUNT</div>
         <nav>
-          <a href="#markets">Markets</a>
-          <a href="#trade">Trade</a>
-          <a href="#account">Account</a>
-        </nav>
-        <button className="login">Login</button>
-      </header>
-
-      <section className="hero">
-        <div>
-          <p className="eyebrow">SMARTER MARKET ACCESS</p>
-          <h1>Trade with a <span>clearer view.</span></h1>
-          <p className="lead">
-            A modern ERICKSP trading dashboard interface built for desktop,
-            tablet and mobile screens.
-          </p>
-          <div className="actions">
-            <a className="primary" href="#trade">Start Demo</a>
-            <a className="secondary" href="#markets">View Markets</a>
-          </div>
-        </div>
-        <div className="hero-card">
-          <div className="card-head"><span>EUR/USD</span><b>LIVE DEMO</b></div>
-          <div className="big-price">1.17342</div>
-          <div className="positive">+0.24%</div>
-          <div className="chart">
-            {[34,45,40,55,49,64,59,72,68,83,76,91].map((h,i)=>
-              <i key={i} style={{height:`${h}%`}} />
-            )}
-          </div>
-        </div>
-      </section>
-
-      <section id="markets" className="section">
-        <div className="section-title"><p className="eyebrow">MARKET WATCH</p><h2>Popular markets</h2></div>
-        <div className="market-grid">
-          {markets.map(m => (
-            <div className="market" key={m.name}>
-              <div><strong>{m.name}</strong><small>Demo quote</small></div>
-              <div className="market-price">{m.price}</div>
-              <div className={m.change.startsWith('+') ? 'positive' : 'negative'}>{m.change}</div>
-            </div>
+          {["Dashboard", "Markets", "Trade", "History", "Wallet"].map(item => (
+            <button className={active === item ? "nav active" : "nav"} onClick={() => setActive(item)} key={item}>
+              <span className="nav-icon">{item === "Dashboard" ? "⌂" : item === "Markets" ? "◫" : item === "Trade" ? "↗" : item === "History" ? "◷" : "▣"}</span>
+              {item}
+            </button>
           ))}
+        </nav>
+        <div className="sidebar-bottom">
+          <button className="nav"><span className="nav-icon">⚙</span>Settings</button>
+          <div className="secure">🔒 Demo mode<br/><small>No real-money transactions</small></div>
         </div>
-      </section>
+      </aside>
 
-      <section id="trade" className="section trade-section">
-        <div className="trade-panel">
-          <div>
-            <p className="eyebrow">DEMO TRADING</p>
-            <h2>Place a demo order</h2>
-            <p className="muted">This starter project intentionally uses simulated orders only.</p>
+      <section className="content">
+        <header className="topbar">
+          <div className="mobile-brand">ERICK<span>SP</span></div>
+          <div className="market-status"><i/> Markets are open <span>•</span> Live demo prices</div>
+          <div className="top-actions">
+            <button className="icon-btn">⌕</button>
+            <button className="icon-btn">◔</button>
+            <button className="avatar">J</button>
           </div>
-          <div className="trade-form">
-            <label>Stake amount (KSh)
-              <input type="number" min="50" value={amount}
-                onChange={e => setAmount(Math.max(50, Number(e.target.value) || 50))} />
-            </label>
-            <div className="trade-buttons">
-              <button className={direction === 'higher' ? 'higher selected' : 'higher'} onClick={() => demoTrade('higher')}>Higher</button>
-              <button className={direction === 'lower' ? 'lower selected' : 'lower'} onClick={() => demoTrade('lower')}>Lower</button>
+        </header>
+
+        <div className="page">
+          <section className="welcome">
+            <div>
+              <div className="eyebrow">TRADING OVERVIEW</div>
+              <h1>Trade smarter.<br/><em>Stay in control.</em></h1>
+              <p>Monitor markets, choose an asset and place a demo position from one clean trading workspace.</p>
             </div>
-            {notice && <div className="notice">{notice}</div>}
-          </div>
+            <div className="balance-card">
+              <span>Demo balance</span>
+              <strong>KSh 25,000.00</strong>
+              <small>+ KSh 1,240.00 <b>+5.21%</b></small>
+            </div>
+          </section>
+
+          <section className="ticker">
+            {assets.map(([name,price,change]) => (
+              <button key={name} onClick={() => setAsset(name)} className={asset === name ? "ticker-card selected" : "ticker-card"}>
+                <div><span>{name}</span><small>OTC / DEMO</small></div>
+                <strong>{price}</strong>
+                <b className={change[0] === "-" ? "negative" : ""}>{change}</b>
+              </button>
+            ))}
+          </section>
+
+          <section className="workspace">
+            <div className="panel chart-panel">
+              <div className="panel-head">
+                <div>
+                  <div className="pair-title"><strong>{asset}</strong><span>▾</span></div>
+                  <div className="price">1.17342 <b>+0.24%</b></div>
+                </div>
+                <div className="timeframes"><button>1m</button><button className="chosen">5m</button><button>15m</button><button>1h</button></div>
+              </div>
+              <Chart />
+              <div className="chart-footer">
+                <span>● LIVE DEMO FEED</span>
+                <span>Spread 0.00012</span>
+                <span>Last update: just now</span>
+              </div>
+            </div>
+
+            <div className="panel order-panel">
+              <div className="panel-title"><strong>Place trade</strong><span className="payout">Payout <b>+87%</b></span></div>
+              <label>Direction</label>
+              <div className="direction">
+                <button className="up">↗ <span>Higher</span><small>Potential return</small></button>
+                <button className="down">↘ <span>Lower</span><small>Potential return</small></button>
+              </div>
+              <label>Investment</label>
+              <div className="amount"><button onClick={() => setStake(Math.max(50, stake-50))}>−</button><span>KSh <b>{stake}</b></span><button onClick={() => setStake(stake+50)}>+</button></div>
+              <div className="chips">{[50,100,250,500].map(v => <button key={v} onClick={() => setStake(v)}>KSh {v}</button>)}</div>
+              <div className="summary"><span>Potential profit</span><b>KSh {(stake*.87).toFixed(2)}</b></div>
+              <button className="trade-btn">Continue in demo <span>→</span></button>
+              <small className="risk">Demo interface only. No funds are transferred.</small>
+            </div>
+          </section>
+
+          <section className="lower">
+            <div className="panel">
+              <div className="panel-title"><strong>Popular markets</strong><button className="view">View all →</button></div>
+              <div className="market-list">
+                {assets.map(([n,p,c,payout]) => <div className="market-row" key={n}><span className="star">☆</span><div><strong>{n}</strong><small>Forex · Demo</small></div><b>{p}</b><span className={c[0]==="-" ? "negative" : "positive"}>{c}</span><em>{payout}</em></div>)}
+              </div>
+            </div>
+            <div className="panel account-panel">
+              <div className="panel-title"><strong>Account</strong></div>
+              <div className="account-line"><span>Account type</span><b>Demo</b></div>
+              <div className="account-line"><span>Demo balance</span><b>KSh 25,000</b></div>
+              <button className="login-btn">Login / Create account</button>
+            </div>
+          </section>
         </div>
       </section>
-
-      <section id="account" className="section account">
-        <div className="account-card">
-          <p className="eyebrow">ACCOUNT</p>
-          <h2>Ready for the next layer</h2>
-          <p>
-            Authentication, database storage, payment integration and an admin
-            control panel can be connected to this interface as separate,
-            properly secured services.
-          </p>
-          <button className="secondary">Create demo account</button>
-        </div>
-      </section>
-
-      <footer>© 2026 ERICKSP. Demo interface.</footer>
     </main>
   );
 }
