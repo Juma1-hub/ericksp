@@ -40,12 +40,12 @@ const initialStrategy: Strategy = {
   market: "Volatility 100 Index",
   contract: "ODD",
   instructions: "Monitor Volatility 100 Index. Wait until all even digits have frequencies below 10%, and at least three odd digits have frequencies of 10.5% or higher. Identify the least-frequent even digit. Wait for it to appear, then watch the next five ticks. If two consecutive odd digits appear, enter an ODD trade.",
-  frequencyWindow: 100,
-  threshold: 10,
-  qualifyingDigits: 3,
-  sequenceLength: 2,
+  frequencyWindow: 1000,
+  threshold: 100,
+  qualifyingDigits: 4,
+  sequenceLength: 3,
   sequenceWindow: 5,
-  stake: 1,
+  stake: 0.5,
   martingaleMultiplier: 2,
   maxMartingaleSteps: 3,
   takeProfit: 10,
@@ -609,7 +609,7 @@ useEffect(() => {
             const fraction = formatted.includes(".") ? formatted.split(".")[1] : "";
             const digit = Number(fraction.length ? fraction.slice(-1) : formatted.slice(-1));
             return Number.isInteger(digit) && digit >= 0 && digit <= 9 ? digit : null;
-          }).filter((digit: number | null): digit is number => digit !== null).slice(-1000);
+          }).filter((digit: number | null): digit is number => digit !== null).slice(-100);
 
           const sampleSize = digits.length;
           const oddPercent = sampleSize ? digits.filter((digit: number) => digit % 2 === 1).length / sampleSize * 100 : 0;
@@ -622,7 +622,7 @@ useEffect(() => {
             matchesParity: draft.contract === "ODD" ? digit % 2 === 1 : digit % 2 === 0
           })).filter(item => item.matchesParity);
           const qualifyingDigits = targetDigits.filter(item => item.percent >= draft.threshold).length;
-          const requiredWindow = Math.max(10, Math.min(1000, draft.frequencyWindow));
+          const requiredWindow = Math.max(10, Math.min(200, draft.frequencyWindow));
           const enoughData = sampleSize >= requiredWindow;
           const eligible = enoughData && qualifyingDigits >= Math.max(1, draft.qualifyingDigits);
           const distance = Math.abs((draft.contract === "ODD" ? oddPercent : evenPercent) - 50);
@@ -655,7 +655,7 @@ useEffect(() => {
     setDraft(saved);
     setReviewOpen(false);
     setNotice(activate
-      ? "Strategy settings saved. Confirm your account and risk settings before using them."
+      ? "Confirm your account and risk settings before using them."
       : "Strategy draft saved.");
     setPage("dashboard");
   }
@@ -710,7 +710,7 @@ useEffect(() => {
       </aside>
 
       <section className="main-area">
-        <header className="topbar">
+        <deriver className="topbar">
           <div className="breadcrumbs"><span>Workspace</span><span className="crumb-slash">/</span><b>{pageTitle}</b></div>
           <div className="top-actions">
   {selectedAccount && (
@@ -719,8 +719,8 @@ useEffect(() => {
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-end",
-        marginRight: "12px",
-        gap: "4px",
+        marginRight: "16px",
+        gap: "10px",
       }}
     >
       <span
@@ -758,7 +758,7 @@ useEffect(() => {
       className="secondary-button account-mode-button"
       onClick={() => window.location.assign("/")}
     >
-      Exit preview ↗
+      Exit preview mode ↗
     </button>
   ) : (
     <button
@@ -775,19 +775,19 @@ useEffect(() => {
 
   <div className="avatar small">SA</div>
 </div>
-        </header>
+        </deriver>
 
         <div className="page-content">
           {previewMode && <div className="notice-bar preview-access-banner"><span>◈</span><span><b>Preview mode</b> — explore the dashboard and Strategy Builder. No Deriv account is connected, and no trades can be placed.</span><button onClick={() => window.location.assign("/")} aria-label="Exit preview">×</button></div>}
           {notice && <div className="notice-bar"><span>ⓘ</span><span>{notice}</span><button onClick={() => setNotice("")} aria-label="Dismiss notice">×</button></div>}
 
           {page === "dashboard" && <>
-            <div className="page-heading-row">
+            <div className="page-deriving-row">
               <div><div className="eyebrow">MONDAY, OCTOBER 26, 2026</div><h1>Welcome to your trading desk.</h1><p className="subtitle">Build your strategy, monitor market conditions, and stay in control.</p></div>
               <button className="primary-button" onClick={() => { setPage("builder"); setReviewOpen(false); }}>＋ Create strategy</button>
             </div>
             <section className="quick-builder panel">
-              <div className="section-heading"><div><div className="eyebrow">STRATEGY STUDIO</div><h2>What should Supa AI look for?</h2><p>Describe your trading conditions or configure them manually.</p></div><span className="sparkle">✳</span></div>
+              <div className="section-deriving"><div><div className="eyebrow">STRATEGY STUDIO</div><h2>What should Supa AI look for?</h2><p>Describe your trading conditions or configure them manually.</p></div><span className="sparkle">✳</span></div>
               <div className="mode-switch"><button className={mode === "ai" ? "selected" : ""} onClick={() => setMode("ai")}>✧ AI instructions</button><button className={mode === "manual" ? "selected" : ""} onClick={() => setMode("manual")}>☷ Manual conditions</button></div>
               {mode === "ai" ? <><label className="field-label" htmlFor="quick-instructions">YOUR STRATEGY IN PLAIN LANGUAGE</label><textarea id="quick-instructions" className="instruction-input" value={draft.instructions} onChange={(e) => updateDraft("instructions", e.target.value)} placeholder="Example: Monitor a market, check digit frequencies, then wait for my exact trigger…"/><div className="input-footer"><span>✦ Your rules will be shown for review before saving.</span><button className="text-button" onClick={() => setPage("builder")}>Open full builder ↗</button></div><div className="quick-actions"><button className="secondary-button" onClick={() => { setPage("builder"); setMode("ai"); }}>Edit in Strategy Builder</button><button className="primary-button" onClick={analyzeInstructions}>Analyze instructions <span>→</span></button></div></> : <><div className="form-grid compact-grid"><label>Strategy name<input value={draft.name} onChange={(e) => updateDraft("name", e.target.value)} /></label><label>Market<select value={draft.market} onChange={(e) => updateDraft("market", e.target.value)}><option>Volatility 100 Index</option><option>Volatility 50 Index</option><option>Volatility 25 Index</option><option>Volatility 75 Index</option><option>Volatility 10 Index</option><option>Choose after connecting</option></select></label><label>Contract type<select value={draft.contract} onChange={(e) => updateDraft("contract", e.target.value as Strategy["contract"])}><option>ODD</option><option>EVEN</option></select></label><label>Frequency window (ticks)<input type="number" min="10" value={draft.frequencyWindow} onChange={(e) => updateDraft("frequencyWindow", Number(e.target.value))}/></label></div><div className="quick-actions"><button className="secondary-button" onClick={() => setPage("builder")}>More conditions</button><button className="primary-button" onClick={() => { setReviewOpen(true); setDraft({...draft, status:"Awaiting review"}); }}>Review conditions →</button></div></>}
             </section>
@@ -928,7 +928,7 @@ useEffect(() => {
 
           {floatingDigitsOpen && <aside className="panel" style={{position:"fixed",right:24,bottom:24,zIndex:50,width:320,maxWidth:"calc(100vw - 32px)",padding:18,boxShadow:"0 16px 48px #0008"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><h3 style={{margin:0}}>Floating digit analysis</h3><button className="icon-button" onClick={()=>setFloatingDigitsOpen(false)} aria-label="Close floating digit tool">×</button></div><p style={{fontSize:12,opacity:.7}}>Live data from the selected market; the latest 1,000 ticks are analysed.</p><div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6}}>{frequencies.map(f=><div key={f.digit} style={{padding:"8px 4px",textAlign:"center",borderRadius:8,background:`${digitColors[f.digit] || "#202b38"}22`,border:`1px solid ${digitColors[f.digit] || "#394657"}`,color:digitColors[f.digit] || "inherit"}}><b>{f.digit}</b><div style={{fontSize:11}}>{f.percent.toFixed(0)}%</div></div>)}</div><p style={{fontSize:11,opacity:.7,marginBottom:0}}>Green/blue mark the highest frequencies; red/orange mark the lowest frequencies.</p></aside>}
 
-          {reviewOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setReviewOpen(false); }}><section className="review-modal panel" role="dialog" aria-modal="true" aria-labelledby="review-title"><div className="modal-heading"><div><div className="eyebrow">CONFIRMATION REQUIRED</div><h2 id="review-title">Review strategy rules</h2><p>Check every rule before saving. Nothing will be traded.</p></div><button className="icon-button" onClick={() => setReviewOpen(false)} aria-label="Close review">×</button></div><div className="review-warning"><span>!</span><p><b>Demo interface only.</b> The instruction parser is a simple heuristic, not a full AI model. Verify all rules manually.</p></div><div className="review-summary"><div><small>STRATEGY</small><b>{draft.name || "Untitled strategy"}</b></div><div><small>MARKET</small><b>{draft.market}</b></div><div><small>CONTRACT</small><b>{draft.contract}</b></div><div><small>FREQUENCY WINDOW</small><b>{draft.frequencyWindow} ticks</b></div><div><small>FREQUENCY THRESHOLD</small><b>{draft.threshold}%</b></div><div><small>MIN. QUALIFYING DIGITS</small><b>{draft.qualifyingDigits}</b></div><div><small>SEQUENCE</small><b>{draft.sequenceLength} consecutive digit(s)</b></div><div><small>SEQUENCE WINDOW</small><b>{draft.sequenceWindow} ticks</b></div><div><small>INITIAL STAKE</small><b>{draft.stake}</b></div><div><small>MARTINGALE</small><b>{draft.martingaleMultiplier}× · max {draft.maxMartingaleSteps} steps</b></div><div><small>TAKE PROFIT</small><b>{draft.takeProfit}</b></div><div><small>STOP LOSS</small><b>{draft.stopLoss}</b></div><div><small>MAXIMUM STAKE</small><b>{draft.maxStake}</b></div><div><small>MAX CONCURRENT TRADES</small><b>{draft.maxTrades}</b></div><div><small>VIRTUAL HOOK</small><b>{virtualHook?"ON":"OFF"}</b></div></div><div className="review-instructions"><small>ORIGINAL INSTRUCTIONS</small><p>{draft.instructions || "No natural-language instructions supplied."}</p></div><div className="modal-footer"><button className="secondary-button" onClick={() => { setReviewOpen(false); setPage("builder"); }}>Edit conditions</button><button className="secondary-button" onClick={() => saveStrategy(false)}>Save as draft</button><button className="primary-button" onClick={() => saveStrategy(true)}>Confirm & save <span>→</span></button></div></section></div>}
+          {reviewOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setReviewOpen(false); }}><section className="review-modal panel" role="dialog" aria-modal="true" aria-labelledby="review-title"><div className="modal-heading"><div><div className="eyebrow">CONFIRMATION REQUIRED</div><h2 id="review-title">Review strategy rules</h2><p>Check every rule before saving. Nothing will be traded.</p></div><button className="icon-button" onClick={() => setReviewOpen(false)} aria-label="Close review">×</button></div><div className="review-warning"><span>!</span><p><b>Demo only.</b> The instruction parser is a simple heuristic, .Verify all rules manually.</p></div><div className="review-summary"><div><small>STRATEGY</small><b>{draft.name || "Untitled strategy"}</b></div><div><small>MARKET</small><b>{draft.market}</b></div><div><small>CONTRACT</small><b>{draft.contract}</b></div><div><small>FREQUENCY WINDOW</small><b>{draft.frequencyWindow} ticks</b></div><div><small>FREQUENCY THRESHOLD</small><b>{draft.threshold}%</b></div><div><small>MIN. QUALIFYING DIGITS</small><b>{draft.qualifyingDigits}</b></div><div><small>SEQUENCE</small><b>{draft.sequenceLength} consecutive digit(s)</b></div><div><small>SEQUENCE WINDOW</small><b>{draft.sequenceWindow} ticks</b></div><div><small>INITIAL STAKE</small><b>{draft.stake}</b></div><div><small>MARTINGALE</small><b>{draft.martingaleMultiplier}× · max {draft.maxMartingaleSteps} steps</b></div><div><small>TAKE PROFIT</small><b>{draft.takeProfit}</b></div><div><small>STOP LOSS</small><b>{draft.stopLoss}</b></div><div><small>MAXIMUM STAKE</small><b>{draft.maxStake}</b></div><div><small>MAX CONCURRENT TRADES</small><b>{draft.maxTrades}</b></div><div><small>VIRTUAL HOOK</small><b>{virtualHook?"ON":"OFF"}</b></div></div><div className="review-instructions"><small>ORIGINAL INSTRUCTIONS</small><p>{draft.instructions || "No natural-language instructions supplied."}</p></div><div className="modal-footer"><button className="secondary-button" onClick={() => { setReviewOpen(false); setPage("builder"); }}>Edit conditions</button><button className="secondary-button" onClick={() => saveStrategy(false)}>Save as draft</button><button className="primary-button" onClick={() => saveStrategy(true)}>Confirm & save <span>→</span></button></div></section></div>}
         </div>
         <footer className="footer"><span>SUPA AI <span className="footer-dot">•</span> TRADING INTELLIGENCE</span><span>Trade responsibly.</span></footer>
       </section>
