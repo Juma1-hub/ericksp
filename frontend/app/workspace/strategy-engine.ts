@@ -46,17 +46,17 @@ export type EngineState = {
   log: string[];
 };
 export const DEFAULT_CONFIG: StrategyConfig = {
-  window: 1000,
-  evenDigitMaxPercent: 10,
-  oddDigitMinPercent: 10.5,
+  window: 100,
+  evenDigitMaxPercent: 9.5,
+  oddDigitMinPercent: 10.7,
   qualifyingOddCount: 3,
   sequenceWindow: 5,
   consecutiveOddCount: 2,
   contract: "ODD",
-  stake: 0.5,
-  maxStake: 10,
-  stopLoss: 5,
-  takeProfit: 5,
+  stake: 0.35,
+  maxStake: 100,
+  stopLoss: 500,
+  takeProfit: 50,
   maxConsecutiveLosses: 3,
   martingaleEnabled: false,
   martingaleMultiplier: 2,
@@ -162,7 +162,7 @@ export class StrategyEngine {
     if (this.lastTickKey.get(symbol) === key) return null;
     this.lastTickKey.set(symbol,key);
     // Virtual Hook contracts are settled against the next observed tick for the selected market.
-    // This is a directional simulation only; it is not a broker-confirmed payout.
+    // This is a directional simulation only; it is not a broker-confirmed payout
     if (this.pendingVirtualSignal && this.pendingVirtualSignal.symbol === symbol &&
         tick.epoch > this.pendingVirtualSignal.triggeredAt) {
       const won = this.pendingVirtualSignal.contract === "ODD" ? tick.digit % 2 === 1 : tick.digit % 2 === 0;
