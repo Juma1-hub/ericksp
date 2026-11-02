@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Supa AI | Trading Intelligence",
+  title: "Supa AI | your ultimate trading companion",
   description: "Supa AI strategy workspace with secure Deriv account authorization.",
 };
 
